@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Local state
-	let PlayerTotal = $state(0);
+	let PlayerTotal = $state(0); // starting currency for testing
 	let PerClickAmount = $state(1);
 	let CoinsPerSecond = $state(0); // idle income per second
 
@@ -25,7 +25,30 @@
 
 	// Derive values
 	let NextClickUpgradeCost = $derived(Math.floor(10 * Math.pow(1.15, PerClickAmount)));
-	const CPSUpgradeCost = () => Math.floor(50 * Math.pow(1.15, CoinsPerSecond * 10));
+
+	// CPS upgrade follows a curved growth: soft-exponential * polynomial term for smoothing
+	const CPSUpgradeCost = () => {
+		// interpret CoinsPerSecond as CPS value; assume each upgrade gives +0.1 CPS (base)
+		const Level = Math.round(CoinsPerSecond * 10); // number of CPS upgrades bought
+		const Base = 1;
+
+		// soft exponential for steady escalation
+		const SoftExp = Math.pow(1, Level);
+
+		// polynomial term to add curvature (gentle early, stronger later)
+		const Poly = 1 + Math.pow(Level, 1) / 10;
+
+		return Math.max(1, Math.floor(Base * SoftExp * Poly));
+	};
+
+	// base CPS increment and curve for how much CPS each purchase grants
+	const BaseCPSIncrement = 0.1;
+	function CPSIncrementForLevel(Level: number) {
+		// moderate growth per upgrade: gentle early, stronger later
+		// tweak 1.07 to make growth faster/slower
+		return BaseCPSIncrement * Math.pow(1.07, Level);
+	}
+
 	let CanBuyClickUpgrade = $derived(PlayerTotal >= NextClickUpgradeCost);
 	let CanBuyCPSUpgrade = $derived(PlayerTotal >= CPSUpgradeCost());
 	let CanBuyBoost = $derived(PlayerTotal >= BoostCost && BoostTimeRemaining <= 0);
@@ -39,16 +62,21 @@
 		if (PlayerTotal >= NextClickUpgradeCost) {
 			PlayerTotal -= NextClickUpgradeCost;
 			PerClickAmount += 1;
-			AddToHistory(`Bought Click Upgrade +1 (Level ${PerClickAmount})`);
+			AddToHistory(`Bought Click Upgrade Level +1 (Level ${PerClickAmount})`);
 		}
 	}
 
 	function BuyCPSUpgrade() {
-		const cost = Math.floor(50 * Math.pow(1.15, CoinsPerSecond * 10));
+		const cost = CPSUpgradeCost();
+		const level = Math.round(CoinsPerSecond * 10);
+		const increment = CPSIncrementForLevel(level);
 		if (PlayerTotal >= cost) {
 			PlayerTotal -= cost;
-			CoinsPerSecond += 1;
-			AddToHistory(`Bought CPS Upgrade +1 (Level ${CoinsPerSecond.toFixed(0)})`);
+			// increase CPS by a curved increment instead of a fixed value
+			CoinsPerSecond += increment;
+			AddToHistory(
+				`Bought CPS Upgrade +${increment.toFixed(2)} (CPS ${CoinsPerSecond.toFixed(2)})`
+			);
 		}
 	}
 
@@ -140,301 +168,181 @@
 	});
 </script>
 
-<h1>Pocket Universe Division: Idle</h1>
-<p>Total: {PlayerTotal.toFixed(0)}</p>
-<p>CPS: {CoinsPerSecond.toFixed(2)}</p>
-{#if BoostTimeRemaining > 0}
-	<p style="color: #ff9800; font-weight: bold;">
-		⚡ Boost Active: {BoostTimeRemaining.toFixed(1)}s ({(BoostMultiplier * 100).toFixed(0)}% speed)
-	</p>
-{/if}
+<div class="container">
+	<div class="sidebar">
+		<div class="sidebar-header">
+			<p>🗃️ Pocket Universe Division: Idle</p>
+			<p><i>A big picture game about the small things.</i></p>
 
-<div class="section stats-section">
-	<h3>Current Levels</h3>
-	<div class="stats-grid">
-		<div class="stat-item">
-			<span class="stat-label">Click Power:</span>
-			<span class="stat-value">+{PerClickAmount}</span>
+			<div class="ticker">
+				<div class="ticker-header">🔋Ticker</div>
+				<div class="ticker-time">
+					<span>{Math.max(0, TickIntervalSeconds - TickElapsedSeconds).toFixed(2)}s</span>
+				</div>
+			</div>
+			<div class="ticker-progress">
+				<div
+					class="ticker-progress-bar"
+					style="width: {(Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100).toFixed(2)}%"
+				></div>
+			</div>
+
+			<!-- <div class="ticker">
+				<label for="ticker"
+					>🔋 Ticker: {Math.max(0, TickIntervalSeconds - TickElapsedSeconds).toFixed(2)}s</label
+				>
+				<div id="ticker-progress" class="ticker-progress">
+					<div
+						class="bar"
+						style="width: {(Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100).toFixed(
+							2
+						)}%"
+					></div>
+				</div>
+			</div> -->
 		</div>
-		<div class="stat-item">
-			<span class="stat-label">CPS Level:</span>
-			<span class="stat-value">+{CoinsPerSecond}/sec</span>
+
+		<div class="sidebar-inventory">
+			<div class="inventory-header">🎒 Inventory</div>
+			<div class="inventory-content">
+				<div class="item">
+					<div class="item-name">Data Shards</div>
+					<div class="item-value">
+						{PlayerTotal.toFixed(4)}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="sidebar-equipment">
+			<div class="equipment-header">🛠️ Equipment</div>
+			<div class="equipment-content">
+				<div class="equipment-grid">
+					<button onclick={HandleClick}>Clicker (+{PerClickAmount})</button>
+					<button>Auto (+{CoinsPerSecond.toFixed(2)}/s)</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="sidebar-upgrades">
+			<div class="upgrades-header">⚙️ Upgrades</div>
+			<div class="upgrades-content">
+				<div class="upgrade-grid">
+					<button onclick={BuyClickUpgrade} disabled={!CanBuyClickUpgrade}>
+						Click (Cost: {NextClickUpgradeCost})
+					</button>
+					<button onclick={BuyCPSUpgrade} disabled={!CanBuyCPSUpgrade}>
+						Auto (Cost: {CPSUpgradeCost()})
+					</button>
+				</div>
+			</div>
 		</div>
 	</div>
-</div>
 
-<button onclick={ResetGame} style="margin-left: 2em; background: #f44336; color: white;">
-	Reset Game
-</button>
+	<div class="main">
+		<div class="main-header">
+			<p>Header.</p>
+		</div>
+		<div class="main-content">
+			<p>Main.</p>
+		</div>
 
-<div class="section section--small">
-	<label for="tick-progress"
-		>Time to next CPS tick: {Math.max(0, TickIntervalSeconds - TickElapsedSeconds).toFixed(
-			2
-		)}s</label
-	>
-	<div id="tick-progress" class="progress progress--small">
-		<div
-			class="bar bar--tick"
-			style="width: {(Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100).toFixed(2)}%"
-		></div>
+		<div class="main-footer">
+			<p>Footer.</p>
+		</div>
 	</div>
-</div>
-
-<div class="section">
-	<label for="click-upgrade-progress">Progress to next click upgrade:</label>
-	<button
-		id="click-upgrade-progress"
-		class="progress progress--large"
-		onclick={BuyClickUpgrade}
-		disabled={!CanBuyClickUpgrade}
-		aria-label="Buy Click Upgrade (Cost: {NextClickUpgradeCost})"
-	>
-		<div
-			class="bar bar--click"
-			style="width: {Math.min(100, (PlayerTotal / NextClickUpgradeCost) * 100)}%"
-		></div>
-	</button>
-</div>
-
-<div class="section">
-	<label for="cps-upgrade-progress">Progress to next CPS upgrade:</label>
-	<button
-		id="cps-upgrade-progress"
-		class="progress progress--large"
-		onclick={BuyCPSUpgrade}
-		disabled={!CanBuyCPSUpgrade}
-		aria-label="Buy CPS Upgrade (Cost: {CPSUpgradeCost()})"
-	>
-		<div
-			class="bar bar--cps"
-			style="width: {Math.min(100, (PlayerTotal / CPSUpgradeCost()) * 100)}%"
-		></div>
-	</button>
-</div>
-
-<div class="button-grid">
-	<button onclick={HandleClick}>Click! +{PerClickAmount}</button>
-	<button onclick={BuyClickUpgrade} disabled={!CanBuyClickUpgrade}>
-		Buy click power (Cost: {NextClickUpgradeCost})
-	</button>
-	<button onclick={BuyCPSUpgrade} disabled={!CanBuyCPSUpgrade}>
-		Buy CPS (Cost: {CPSUpgradeCost()})
-	</button>
-	<button onclick={BuyTickBoost} disabled={!CanBuyBoost}>
-		Buy Tick Boost (Cost: {BoostCost})
-	</button>
-	<button onclick={ResetGame} style="background: #f44336; color: white;"> Reset </button>
-</div>
-
-<div class="section history-section">
-	<h3>Recent Actions</h3>
-	<ul class="action-history">
-		{#each ActionHistory as action (action)}
-			<li>{action}</li>
-		{/each}
-	</ul>
 </div>
 
 <style>
-	/* Global */
-	:global(body) {
-		margin: 0;
-		padding: 0;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-		background: #fafafa;
+	:root {
+		--global-padding: 1rem;
 	}
 
-	:global(#svelte) {
+	.container {
 		min-height: 100vh;
-		padding: 1rem;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		grid-template-rows: 1fr auto;
 	}
 
-	h1 {
-		margin: 0 0 0.5rem 0;
-		font-size: 1.5rem;
+	/* Sidebar */
+	.sidebar {
+		border-right: 1px solid black;
 	}
 
-	/* layout */
-	.section {
-		margin: 1em 0;
+	.sidebar-header {
+		padding: var(--global-padding);
+		border-bottom: 1px solid black;
 	}
-	.section--small {
-		margin: 0.5em 0;
+
+	.ticker {
+		display: grid;
+		grid-template-columns: 1fr auto;
+	}
+
+	/* Sidebar Inventory */
+	.sidebar-inventory,
+	.sidebar-equipment,
+	.sidebar-upgrades {
+		padding: var(--global-padding);
+		border-bottom: 1px solid black;
+	}
+
+	.item {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		padding-top: 0.5rem;
+		padding-bottom: 0.5rem;
+		gap: 0.5rem;
+	}
+
+	.item-name {
+		border-right: 1px solid black;
+	}
+
+	.equipment-grid,
+	.upgrade-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5rem;
+		padding-top: 0.5rem;
+		padding-bottom: 0.5rem;
+	}
+
+	.main {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+	}
+
+	.main-header {
+		padding: var(--global-padding);
+		border-bottom: 1px solid black;
+	}
+
+	.main-content {
+		flex-grow: 1;
+		overflow-y: auto;
+		padding: var(--global-padding);
+		border-bottom: 1px solid black;
+	}
+
+	.main-footer {
+		padding: var(--global-padding);
 	}
 
 	/* progress containers */
-	.progress {
-		border-radius: 4px;
-		overflow: hidden;
-	}
-	.progress--large {
-		background: #eee;
-		width: 100%;
-		max-width: 300px;
-		height: 24px;
-	}
-	.progress--small {
+	.ticker-progress {
 		background: #222;
 		width: 100%;
-		max-width: 200px;
 		height: 12px;
-		margin-top: 4px;
+		border-radius: 2px;
+		overflow: hidden;
 	}
 
-	/* bars */
-	.bar {
+	.ticker-progress-bar {
 		height: 100%;
-		transition: width 0.2s ease;
-	}
-
-	.bar--tick {
-		background: linear-gradient(90deg, #ff9800, #ffc107);
-		transition: width 0.05s linear;
-	}
-	.bar--click {
-		background: linear-gradient(90deg, #4caf50, #81c784);
-	}
-	.bar--cps {
-		background: linear-gradient(90deg, #2196f3, #64b5f6);
-	}
-
-	/* buttons */
-	label {
-		display: block;
-		font-size: 0.9rem;
-		margin-bottom: 4px;
-	}
-
-	button {
-		margin-right: 0.5rem;
-		margin-top: 0.5rem;
-		padding: 0.75rem 1rem;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		background: #fff;
-		cursor: pointer;
-		font-size: 1rem;
-	}
-
-	button:hover:not(:disabled) {
-		background: #f0f0f0;
-	}
-
-	button:disabled {
-		cursor: not-allowed;
-		opacity: 0.5;
-		pointer-events: none;
-	}
-
-	button.progress {
-		border: 1px solid #ccc;
-		padding: 0;
-		cursor: pointer;
-		font-size: inherit;
-	}
-	button.progress:disabled {
-		cursor: not-allowed;
-		opacity: 0.5;
-		pointer-events: none;
-	}
-	button.progress:not(:disabled):hover {
-		border-color: #999;
-	}
-
-	/* button grid */
-	.button-grid {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.5rem;
-		margin: 1em 0;
-	}
-
-	.button-grid button {
-		flex: 1;
-		min-width: 120px;
-		margin: 0;
-	}
-
-	/* history */
-	.history-section {
-		margin-top: 2em;
-		padding: 1em;
-		background: #f5f5f5;
-		border-radius: 8px;
-	}
-
-	.history-section h3 {
-		margin: 0 0 0.5em 0;
-		font-size: 1rem;
-	}
-
-	.action-history {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		font-size: 0.85rem;
-	}
-
-	.action-history li {
-		padding: 0.25em 0;
-		color: #666;
-		border-bottom: 1px solid #ddd;
-	}
-
-	.action-history li:last-child {
-		border-bottom: none;
-	}
-
-	/* stats section */
-	.stats-section {
-		background: #f0f8ff;
-		padding: 1em;
-		border-radius: 8px;
-		margin: 1em 0;
-	}
-	.stats-section h3 {
-		margin: 0 0 0.5em 0;
-		font-size: 1rem;
-	}
-	.stats-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-		gap: 1em;
-	}
-	.stat-item {
-		background: #fff;
-		padding: 0.5em;
-		border-radius: 4px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
-	.stat-label {
-		display: block;
-		font-size: 0.9rem;
-		margin-bottom: 0.2em;
-		color: #333;
-	}
-	.stat-value {
-		font-size: 1.2rem;
-		font-weight: bold;
-		color: #111;
-	}
-
-	/* tablet & desktop */
-	@media (min-width: 640px) {
-		:global(#svelte) {
-			padding: 2rem;
-			max-width: 1200px;
-			margin: 0 auto;
-		}
-
-		h1 {
-			font-size: 2rem;
-		}
-
-		.button-grid button {
-			flex: 0 1 auto;
-			min-width: auto;
-		}
+		background: greenyellow;
+		transition: width 0.1s linear;
 	}
 </style>
