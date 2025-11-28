@@ -42,7 +42,8 @@
 
 		// polynomial term to add curvature (gentle early, stronger later)
 		const Poly = 1 + Math.pow(Level, 1) / 10;
-
+		console.log('Test: ', Math.max(1, Math.floor(Base * SoftExp * Poly)));
+		console.log('PlayerTotal: ', PlayerTotal);
 		return Math.max(1, Math.floor(Base * SoftExp * Poly));
 	};
 
@@ -209,14 +210,20 @@
 	<div class="container">
 		<div class="sidebar">
 			<div class="sidebar-header">
-				<p>🗃️ Pocket Universe Division: Idle</p>
-				<p><i>A big picture game about the small things.</i></p>
+				<div class="sidebar-header-icon">🗃️</div>
+				<div class="sidebar-header-text">
+					<div class="sidebar-header-title">Pocket Universe Division: Idle</div>
+					<div class="sidebar-header-subtitle">
+						<i>A big picture game about the small things.</i>
+					</div>
+				</div>
 			</div>
 			<div class="sidebar-engine">
 				<div class="engine-header">⚙️ Engine</div>
 				<div class="engine-content">
 					<div class="engine-item">
 						<div class="engine-item-name">Auto Extraction</div>
+						<div class="engine-item-border"></div>
 						<div class="engine-item-value progress">
 							<div
 								class="bar"
@@ -314,7 +321,7 @@
 		--text-color: black;
 		--border-color: black;
 		--button-bg: white;
-		--button-hover: gold;
+		--button-hover: #d6d6d6;
 		--progress-bg: greenyellow;
 	}
 
@@ -346,7 +353,7 @@
 	.container {
 		height: 100%;
 		display: grid;
-		grid-template-columns: auto 1fr;
+		grid-template-columns: 2fr 6fr;
 		grid-template-rows: 1fr auto;
 	}
 
@@ -360,16 +367,39 @@
 
 	button:hover {
 		background-color: var(--button-hover);
+		cursor: pointer;
+	}
+
+	button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
 	}
 
 	/* Sidebar */
 	.sidebar {
+		min-width: 360px;
 		border-right: 1px solid var(--border-color);
+		overflow-y: auto;
 	}
 
 	.sidebar-header {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 		padding: var(--global-padding);
 		border-bottom: 1px solid var(--border-color);
+	}
+
+	.sidebar-header-icon {
+		font-size: xx-large;
+	}
+
+	.sidebar-header-title {
+		font-size: large;
+	}
+
+	.sidebar-header-subtitle {
+		font-size: small;
 	}
 
 	.sidebar-engine,
@@ -401,17 +431,22 @@
 	}
 
 	.engine-item {
-		display: grid;
-		grid-template-columns: 3fr 1fr;
+		display: flex;
 		padding-top: 0.5rem;
 		padding-bottom: 0.5rem;
 		gap: 0.5rem;
 	}
 
 	.engine-item-name {
-		border-right: 1px solid var(--border-color);
+		flex-grow: 1;
+		border: 1px solid var(--border-color);
+		border-radius: 4px;
 		align-self: center;
 		padding: 0.5rem;
+	}
+
+	.engine-item-border {
+		border-left: 1px dotted var(--border-color);
 	}
 
 	.engine-item-value {
