@@ -28,6 +28,13 @@
 	const BoostDurationSeconds = 10;
 	const BoostSpeedMultiplier = 2; // 2x speed
 
+	// Upgrade progress states
+	const ClickUpgradeTime = 5; // seconds to complete click upgrade
+	const CPSUpgradeTime = 10; // seconds to complete CPS upgrade
+	let ClickUpgradeProgress = $state(0); // 0 to 1, progress toward click upgrade
+	let CPSUpgradeProgress = $state(0); // 0 to 1, progress toward CPS upgrade
+	let PendingCPSIncrement = $state(0); // pending CPS increment to apply after upgrade
+
 	// Derive values
 	let NextClickUpgradeCost = $derived(Math.floor(10 * Math.pow(1.15, PerClickAmount)));
 
@@ -55,8 +62,10 @@
 		return BaseCPSIncrement * Math.pow(1.07, Level);
 	}
 
-	let CanBuyClickUpgrade = $derived(PlayerTotal >= NextClickUpgradeCost);
-	let CanBuyCPSUpgrade = $derived(PlayerTotal >= CPSUpgradeCost());
+	let CanBuyClickUpgrade = $derived(
+		PlayerTotal >= NextClickUpgradeCost && ClickUpgradeProgress === 0
+	);
+	let CanBuyCPSUpgrade = $derived(PlayerTotal >= CPSUpgradeCost() && CPSUpgradeProgress === 0);
 	let CanBuyBoost = $derived(PlayerTotal >= BoostCost && BoostTimeRemaining <= 0);
 
 	let isDarkMode = $state(false);
@@ -74,10 +83,10 @@
 	}
 
 	function BuyClickUpgrade() {
-		if (PlayerTotal >= NextClickUpgradeCost) {
+		if (PlayerTotal >= NextClickUpgradeCost && ClickUpgradeProgress === 0) {
 			PlayerTotal -= NextClickUpgradeCost;
-			PerClickAmount += 1;
-			AddToHistory(`Bought Click Upgrade Level +1 (Level ${PerClickAmount})`);
+			ClickUpgradeProgress = 0.01; // start the progress
+			AddToHistory(`Started Click Upgrade Level +1`);
 		}
 	}
 
@@ -85,13 +94,11 @@
 		const cost = CPSUpgradeCost();
 		const level = Math.round(CoinsPerSecond * 10);
 		const increment = CPSIncrementForLevel(level);
-		if (PlayerTotal >= cost) {
+		if (PlayerTotal >= cost && CPSUpgradeProgress === 0) {
 			PlayerTotal -= cost;
-			// increase CPS by a curved increment instead of a fixed value
-			CoinsPerSecond += increment;
-			AddToHistory(
-				`Bought CPS Upgrade +${increment.toFixed(2)} (CPS ${CoinsPerSecond.toFixed(2)})`
-			);
+			PendingCPSIncrement = increment;
+			CPSUpgradeProgress = 0.01; // start the progress
+			AddToHistory(`Started CPS Upgrade +${increment.toFixed(2)}`);
 		}
 	}
 
@@ -115,6 +122,9 @@
 			BoostTimeRemaining = 0;
 			BoostMultiplier = 1;
 			ActionHistory = [];
+			ClickUpgradeProgress = 0;
+			CPSUpgradeProgress = 0;
+			PendingCPSIncrement = 0;
 			localStorage.removeItem('save');
 		}
 	}
@@ -144,6 +154,29 @@
 			// accumulate manual extraction progress
 			if (PendingManualClicks > 0) {
 				ManualProgress += (DeltaTimeSeconds * BoostMultiplier) / ManualExtractionTime;
+			}
+
+			// accumulate click upgrade progress
+			if (ClickUpgradeProgress > 0) {
+				ClickUpgradeProgress += (DeltaTimeSeconds * BoostMultiplier) / ClickUpgradeTime;
+				if (ClickUpgradeProgress >= 1) {
+					PerClickAmount += 1;
+					AddToHistory(`Completed Click Upgrade Level ${PerClickAmount}`);
+					ClickUpgradeProgress = 0;
+				}
+			}
+
+			// accumulate CPS upgrade progress
+			if (CPSUpgradeProgress > 0) {
+				CPSUpgradeProgress += (DeltaTimeSeconds * BoostMultiplier) / CPSUpgradeTime;
+				if (CPSUpgradeProgress >= 1) {
+					CoinsPerSecond += PendingCPSIncrement;
+					AddToHistory(
+						`Completed CPS Upgrade +${PendingCPSIncrement.toFixed(2)} (CPS ${CoinsPerSecond.toFixed(2)})`
+					);
+					PendingCPSIncrement = 0;
+					CPSUpgradeProgress = 0;
+				}
 			}
 
 			// apply auto ticks
@@ -182,7 +215,10 @@
 				BoostTimeRemaining,
 				BoostMultiplier,
 				ActionHistory,
-				isDarkMode
+				isDarkMode,
+				ClickUpgradeProgress,
+				CPSUpgradeProgress,
+				PendingCPSIncrement
 			})
 		);
 	});
@@ -201,6 +237,9 @@
 			BoostMultiplier = s.BoostMultiplier ?? 1;
 			ActionHistory = s.ActionHistory ?? [];
 			isDarkMode = s.isDarkMode ?? false;
+			ClickUpgradeProgress = s.ClickUpgradeProgress ?? 0;
+			CPSUpgradeProgress = s.CPSUpgradeProgress ?? 0;
+			PendingCPSIncrement = s.PendingCPSIncrement ?? 0;
 			document.documentElement.classList.toggle('dark', isDarkMode);
 		}
 	});
@@ -307,9 +346,9 @@
 								<!-- progress fill -->
 								<div class="bar" style="width: {(ManualProgress * 100).toFixed(2)}%"></div>
 								<!-- visible content on top -->
-								<div class="progress-content">
+								<span class="progress-content">
 									Clicker (+{PerClickAmount})
-								</div>
+								</span>
 							</button>
 							<button class="equipment-item progress" disabled>
 								<!-- progress fill -->
@@ -341,14 +380,26 @@
 					<div class="upgrades-content">
 						<div class="upgrades-grid">
 							<button
-								class="upgrades-item"
+								class="upgrades-item progress {!CanBuyClickUpgrade || ClickUpgradeProgress > 0
+									? 'disabled'
+									: ''}"
 								onclick={BuyClickUpgrade}
-								disabled={!CanBuyClickUpgrade}
 							>
-								Click (Cost: {NextClickUpgradeCost})
+								<div class="bar" style="width: {(ClickUpgradeProgress * 100).toFixed(2)}%"></div>
+								<span class="progress-content">
+									Click (Cost: {NextClickUpgradeCost})
+								</span>
 							</button>
-							<button class="upgrades-item" onclick={BuyCPSUpgrade} disabled={!CanBuyCPSUpgrade}>
-								Auto (Cost: {CPSUpgradeCost()})
+							<button
+								class="upgrades-item progress {!CanBuyCPSUpgrade || CPSUpgradeProgress > 0
+									? 'disabled'
+									: ''}"
+								onclick={BuyCPSUpgrade}
+							>
+								<div class="bar" style="width: {(CPSUpgradeProgress * 100).toFixed(2)}%"></div>
+								<span class="progress-content">
+									Auto (Cost: {CPSUpgradeCost()})
+								</span>
 							</button>
 						</div>
 					</div>
@@ -432,7 +483,6 @@
 		background-color: var(--button-bg);
 		color: var(--text-color);
 		box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.8);
-		padding: 0.5rem;
 	}
 
 	button:hover {
@@ -473,19 +523,23 @@
 	}
 
 	/* .sidebar-header::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: var(--bg-color);
-		filter: blur(2px) grayscale(50%);
-		z-index: -1; 
-	} */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-color);
+        filter: blur(2px) grayscale(50%);
+        z-index: -1; 
+    } */
 
 	.sidebar-header-icon {
 		font-size: xx-large;
+	}
+
+	.sidebar-header-text {
+		flex-grow: 1;
 	}
 
 	.sidebar-header-title {
@@ -557,19 +611,19 @@
 	}
 
 	/* .engine-header::before,
-	.inventory-header::before,
-	.equipment-header::before,
-	.upgrades-header::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: var(--bg-color);
-		filter: blur(2px) grayscale(50%);
-		z-index: -1;
-	} */
+    .inventory-header::before,
+    .equipment-header::before,
+    .upgrades-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg-color);
+        filter: blur(2px) grayscale(50%);
+        z-index: -1;
+    } */
 
 	.collapse-arrow {
 		float: right;
@@ -657,15 +711,14 @@
 		transition: background 0.2s;
 		border: 1px solid var(--border-color);
 		border-radius: 4px;
-		/* padding: 0.5rem; */
 		background-color: var(--button-bg);
 	}
 
 	/* .progress:hover:not(:disabled) {
-		background: white;
-	} */
+        background: white;
+    } */
 
-	.progress:disabled {
+	.progress.disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
 	}
