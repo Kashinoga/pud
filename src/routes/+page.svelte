@@ -210,6 +210,19 @@
 	let isInventoryCollapsed = $state(false);
 	let isEquipmentCollapsed = $state(false);
 	let isUpgradesCollapsed = $state(false);
+
+	// Derived state for all collapsed
+	let allCollapsed = $derived(
+		isEngineCollapsed && isInventoryCollapsed && isEquipmentCollapsed && isUpgradesCollapsed
+	);
+
+	function toggleAllSections() {
+		const newState = !allCollapsed;
+		isEngineCollapsed = newState;
+		isInventoryCollapsed = newState;
+		isEquipmentCollapsed = newState;
+		isUpgradesCollapsed = newState;
+	}
 </script>
 
 <div class="body-wrapper">
@@ -223,6 +236,12 @@
 						<i>A big picture game about the small things.</i>
 					</div>
 				</div>
+			</div>
+
+			<div class="sidebar-controls">
+				<button onclick={toggleAllSections} class="toggle-all-button button-small">
+					{allCollapsed ? 'Expand All' : 'Collapse All'}
+				</button>
 			</div>
 
 			<div class="sidebar-engine">
@@ -343,7 +362,9 @@
 					<div class="header-title"><p>Header.</p></div>
 					<div class="header-toolbar">
 						<div class="theme-toggle">
-							<button onclick={ToggleTheme}>{isDarkMode ? '☀️ Light' : '🌙 Dark'}</button>
+							<button class="button-small" onclick={ToggleTheme}
+								>{isDarkMode ? '☀️ Light' : '🌙 Dark'}</button
+							>
 						</div>
 					</div>
 				</div>
@@ -362,6 +383,8 @@
 	:global(:root) {
 		--global-padding: 1rem;
 		--bg-color: white;
+		--bg-color-2: #f0f0f0;
+		--bg-color-3: #e0e0e0;
 		--text-color: black;
 		--border-color: black;
 		--button-bg: white;
@@ -371,6 +394,8 @@
 
 	:global(:root.dark) {
 		--bg-color: #404040;
+		--bg-color-2: #383838;
+		--bg-color-3: #303030;
 		--text-color: white;
 		--border-color: black;
 		--button-bg: #202020;
@@ -399,6 +424,7 @@
 		display: grid;
 		grid-template-columns: 2fr 6fr;
 		grid-template-rows: 1fr auto;
+		overflow: auto;
 	}
 
 	/* Buttons */
@@ -419,12 +445,17 @@
 		cursor: not-allowed;
 	}
 
+	.button-small {
+		font-size: xx-small;
+	}
+
 	/* Sidebar */
 	.sidebar {
 		min-width: 360px;
 		border-right: 1px solid var(--border-color);
 		border-top-left-radius: 10px;
 		overflow-y: auto;
+		box-shadow: 1px 0 20px 0 rgba(0, 0, 0, 0.2);
 	}
 
 	/* Sidebar Header */
@@ -438,8 +469,7 @@
 		box-shadow: 0 1px 20px 0 rgba(0, 0, 0, 0.2);
 		position: relative;
 		z-index: 1;
-		/* background-color: rgba(255, 255, 255, 0.3);
-		backdrop-filter: blur(5px) grayscale(30%); */
+		justify-content: space-between;
 	}
 
 	/* .sidebar-header::before {
@@ -466,9 +496,24 @@
 		font-size: small;
 	}
 
+	/* Sidebar Controls */
+	.sidebar-controls {
+		padding: 0.5rem;
+		border-bottom: 1px solid var(--border-color);
+		z-index: 1;
+		display: flex;
+		justify-content: right;
+	}
+
 	.inventory-grid {
 		padding-top: 0.5rem;
 		padding-bottom: 0.5rem;
+	}
+
+	.inventory-item {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.5rem;
 	}
 
 	.inventory-item-name,
@@ -476,10 +521,8 @@
 		padding: 0.5rem;
 	}
 
-	.inventory-item {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 0.5rem;
+	.inventory-item-name {
+		flex-grow: 1;
 	}
 
 	.inventory-item-value {
@@ -507,7 +550,7 @@
 		box-shadow: 0 1px 20px 0 rgba(0, 0, 0, 0.2);
 		position: relative;
 		z-index: 1;
-		background-color: var(--bg-color);
+		background-color: var(--bg-color-2);
 		color: var(--text-color);
 		/* backdrop-filter: blur(5px) grayscale(30%); */
 		align-items: center;
@@ -545,6 +588,7 @@
 	.inventory-content,
 	.equipment-content,
 	.upgrades-content {
+		background-color: var(--bg-color-3);
 		border-bottom: 1px solid var(--border-color);
 		padding: 0.5rem;
 	}
@@ -585,11 +629,13 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
+		overflow: auto;
 	}
 
 	.main-header {
 		padding: var(--global-padding);
 		border-bottom: 1px solid var(--border-color);
+		box-shadow: 1px 0 20px 0 rgba(0, 0, 0, 0.2);
 	}
 
 	.main-content {
@@ -601,6 +647,7 @@
 
 	.main-footer {
 		padding: var(--global-padding);
+		box-shadow: -1px 0 20px 0 rgba(0, 0, 0, 0.2);
 	}
 
 	/* progress containers */
