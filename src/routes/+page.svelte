@@ -204,6 +204,12 @@
 			document.documentElement.classList.toggle('dark', isDarkMode);
 		}
 	});
+
+	// Collapsible state for sidebar sections
+	let isEngineCollapsed = $state(false);
+	let isInventoryCollapsed = $state(false);
+	let isEquipmentCollapsed = $state(false);
+	let isUpgradesCollapsed = $state(false);
 </script>
 
 <div class="body-wrapper">
@@ -218,81 +224,119 @@
 					</div>
 				</div>
 			</div>
+
 			<div class="sidebar-engine">
-				<div class="engine-header">⚙️ Engine</div>
-				<div class="engine-content">
-					<div class="engine-item">
-						<div class="engine-item-name">Auto Extraction</div>
-						<div class="engine-item-border"></div>
-						<div class="engine-item-value progress">
-							<div
-								class="bar"
-								style="width: {(
-									Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100
-								).toFixed(2)}%"
-							></div>
-							<span class="progress-content">
-								{Math.max(0, TickIntervalSeconds - TickElapsedSeconds).toFixed(4)}s
-							</span>
+				<button class="engine-header" onclick={() => (isEngineCollapsed = !isEngineCollapsed)}>
+					<div class="engine-title">⚙️ Engine</div>
+					<span class="collapse-arrow">{isEngineCollapsed ? '▶' : '▼'}</span>
+				</button>
+				{#if !isEngineCollapsed}
+					<div class="engine-content">
+						<div class="engine-item">
+							<div class="engine-item-name">Auto Extraction</div>
+							<div class="engine-item-border"></div>
+							<div class="engine-item-value progress">
+								<div
+									class="bar"
+									style="width: {(
+										Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100
+									).toFixed(2)}%"
+								></div>
+								<span class="progress-content">
+									{Math.max(0, TickIntervalSeconds - TickElapsedSeconds).toFixed(4)}s
+								</span>
+							</div>
 						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
+
 			<div class="sidebar-inventory">
-				<div class="inventory-header">🎒 Inventory</div>
-				<div class="inventory-content">
-					<div class="inventory-grid">
-						<div class="inventory-item">
-							<div class="inventory-item-name">Data Shards</div>
-							<div class="inventory-item-value">
-								{PlayerTotal.toFixed(4)}
+				<button
+					class="inventory-header"
+					onclick={() => (isInventoryCollapsed = !isInventoryCollapsed)}
+				>
+					<div class="inventory-title">🎒 Inventory</div>
+					<span class="collapse-arrow">{isInventoryCollapsed ? '▶' : '▼'}</span>
+				</button>
+				{#if !isInventoryCollapsed}
+					<div class="inventory-content">
+						<div class="inventory-grid">
+							<div class="inventory-item">
+								<div class="inventory-item-name">Data Shards</div>
+								<div class="inventory-item-value">
+									{PlayerTotal.toFixed(4)}
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
+
 			<div class="sidebar-equipment">
-				<div class="equipment-header">🛠️ Equipment</div>
-				<div class="equipment-content">
-					<div class="equipment-grid">
-						<button class="progress button-progress" onclick={HandleClick}>
-							<!-- progress fill -->
-							<div class="bar" style="width: {(ManualProgress * 100).toFixed(2)}%"></div>
-							<!-- visible content on top -->
-							<div class="progress-content">
-								Clicker (+{PerClickAmount})
-							</div>
-						</button>
-						<button class="progress button-progress" disabled>
-							<!-- progress fill -->
-							<div
-								class="bar"
-								style="width: {(
-									Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100
-								).toFixed(2)}%"
-							></div>
-							<!-- visible content on top -->
-							<span class="progress-content">
-								Auto (+{CoinsPerSecond.toFixed(2)}/s)
-							</span>
-						</button>
+				<button
+					class="equipment-header"
+					onclick={() => (isEquipmentCollapsed = !isEquipmentCollapsed)}
+				>
+					<div class="equipment-title">🛠️ Equipment</div>
+					<span class="collapse-arrow">{isEquipmentCollapsed ? '▶' : '▼'}</span>
+				</button>
+				{#if !isEquipmentCollapsed}
+					<div class="equipment-content">
+						<div class="equipment-grid">
+							<button class="equipment-item progress" onclick={HandleClick}>
+								<!-- progress fill -->
+								<div class="bar" style="width: {(ManualProgress * 100).toFixed(2)}%"></div>
+								<!-- visible content on top -->
+								<div class="progress-content">
+									Clicker (+{PerClickAmount})
+								</div>
+							</button>
+							<button class="equipment-item progress" disabled>
+								<!-- progress fill -->
+								<div
+									class="bar"
+									style="width: {(
+										Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100
+									).toFixed(2)}%"
+								></div>
+								<!-- visible content on top -->
+								<span class="progress-content">
+									Auto (+{CoinsPerSecond.toFixed(2)}/s)
+								</span>
+							</button>
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
+
 			<div class="sidebar-upgrades">
-				<div class="upgrades-header">⚙️ Upgrades</div>
-				<div class="upgrades-content">
-					<div class="upgrade-grid">
-						<button onclick={BuyClickUpgrade} disabled={!CanBuyClickUpgrade}>
-							Click (Cost: {NextClickUpgradeCost})
-						</button>
-						<button onclick={BuyCPSUpgrade} disabled={!CanBuyCPSUpgrade}>
-							Auto (Cost: {CPSUpgradeCost()})
-						</button>
+				<button
+					class="upgrades-header"
+					onclick={() => (isUpgradesCollapsed = !isUpgradesCollapsed)}
+				>
+					<div class="upgrades-title">⚙️ Upgrades</div>
+					<span class="collapse-arrow">{isUpgradesCollapsed ? '▶' : '▼'}</span>
+				</button>
+				{#if !isUpgradesCollapsed}
+					<div class="upgrades-content">
+						<div class="upgrades-grid">
+							<button
+								class="upgrades-item"
+								onclick={BuyClickUpgrade}
+								disabled={!CanBuyClickUpgrade}
+							>
+								Click (Cost: {NextClickUpgradeCost})
+							</button>
+							<button class="upgrades-item" onclick={BuyCPSUpgrade} disabled={!CanBuyCPSUpgrade}>
+								Auto (Cost: {CPSUpgradeCost()})
+							</button>
+						</div>
 					</div>
-				</div>
+				{/if}
 			</div>
 		</div>
+
 		<div class="main">
 			<div class="main-header">
 				<div class="header-content">
@@ -379,8 +423,11 @@
 	.sidebar {
 		min-width: 360px;
 		border-right: 1px solid var(--border-color);
+		border-top-left-radius: 10px;
 		overflow-y: auto;
 	}
+
+	/* Sidebar Header */
 
 	.sidebar-header {
 		display: flex;
@@ -388,7 +435,24 @@
 		gap: 0.5rem;
 		padding: var(--global-padding);
 		border-bottom: 1px solid var(--border-color);
+		box-shadow: 0 1px 20px 0 rgba(0, 0, 0, 0.2);
+		position: relative;
+		z-index: 1;
+		/* background-color: rgba(255, 255, 255, 0.3);
+		backdrop-filter: blur(5px) grayscale(30%); */
 	}
+
+	/* .sidebar-header::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: var(--bg-color);
+		filter: blur(2px) grayscale(50%);
+		z-index: -1; 
+	} */
 
 	.sidebar-header-icon {
 		font-size: xx-large;
@@ -400,14 +464,6 @@
 
 	.sidebar-header-subtitle {
 		font-size: small;
-	}
-
-	.sidebar-engine,
-	.sidebar-inventory,
-	.sidebar-equipment,
-	.sidebar-upgrades {
-		padding: var(--global-padding);
-		border-bottom: 1px solid var(--border-color);
 	}
 
 	.inventory-grid {
@@ -430,15 +486,80 @@
 		text-align: right;
 	}
 
-	.engine-item {
+	.sidebar-engine,
+	.sidebar-inventory,
+	.sidebar-equipment,
+	.sidebar-upgrades {
 		display: flex;
-		padding-top: 0.5rem;
-		padding-bottom: 0.5rem;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.engine-header,
+	.inventory-header,
+	.equipment-header,
+	.upgrades-header {
+		display: flex;
+		padding: 0.5rem;
+		border: 0;
+		border-radius: 0;
+		border-bottom: 1px solid var(--border-color);
+		box-shadow: 0 1px 20px 0 rgba(0, 0, 0, 0.2);
+		position: relative;
+		z-index: 1;
+		background-color: var(--bg-color);
+		color: var(--text-color);
+		/* backdrop-filter: blur(5px) grayscale(30%); */
+		align-items: center;
+	}
+
+	/* .engine-header::before,
+	.inventory-header::before,
+	.equipment-header::before,
+	.upgrades-header::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: var(--bg-color);
+		filter: blur(2px) grayscale(50%);
+		z-index: -1;
+	} */
+
+	.collapse-arrow {
+		float: right;
+		font-size: xx-small;
+	}
+
+	.engine-title,
+	.inventory-title,
+	.equipment-title,
+	.upgrades-title {
+		flex-grow: 1;
+		text-align: left;
+	}
+
+	.engine-content,
+	.inventory-content,
+	.equipment-content,
+	.upgrades-content {
+		border-bottom: 1px solid var(--border-color);
+		padding: 0.5rem;
+	}
+
+	.engine-item,
+	.inventory-item,
+	.equipment-item,
+	.upgrades-item {
+		display: flex;
 		gap: 0.5rem;
 	}
 
 	.engine-item-name {
 		flex-grow: 1;
+		background-color: var(--button-bg);
 		border: 1px solid var(--border-color);
 		border-radius: 4px;
 		align-self: center;
@@ -454,12 +575,10 @@
 	}
 
 	.equipment-grid,
-	.upgrade-grid {
+	.upgrades-grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 0.5rem;
-		padding-top: 0.5rem;
-		padding-bottom: 0.5rem;
 	}
 
 	.main {
@@ -523,5 +642,12 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+	}
+
+	.engine-header,
+	.inventory-header,
+	.equipment-header,
+	.upgrades-header {
+		cursor: pointer;
 	}
 </style>
