@@ -417,7 +417,7 @@ button:disabled {
 }
 
 .main .content .flex .inventory .grid {
-	padding-top: 0.5rem;
+	padding-top: 1rem;
 	padding-bottom: 0.5rem;
 }
 
@@ -456,6 +456,43 @@ button:disabled {
 	box-shadow: -1px 0 20px 0 rgba(0, 0, 0, 0.2);
 	border-top: 1px solid var(--border-color);
 	border-bottom-right-radius: 10px;
+}
+
+.main .content .sidebar .detail {
+	border: 1px solid var(--border-color);
+	border-radius: var(--global-boarder-radius-button);
+	box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+.main .content .sidebar .detail .container {
+	display: flex;
+	align-items: center;
+	border-top-left-radius: var(--global-boarder-radius-button);
+	border-top-right-radius: var(--global-boarder-radius-button);
+	border-bottom: 1px dotted var(--border-color);
+	background-color: var(--bg-color-3);
+}
+
+.main .content .sidebar .detail .name {
+	padding: 1rem;
+	flex-grow: 1;
+}
+
+.main .content .sidebar .detail .quantity {
+	padding: 1rem;
+}
+
+.main .content .sidebar .detail .border {
+	height: 2rem;
+	border-left: 1px dotted var(--border-color);
+}
+
+.main .content .sidebar .detail .description {
+	background-color: var(--bg-color);
+	padding: 1rem;
+	font-weight: lighter;
+	border-bottom-left-radius: var(--global-boarder-radius-button);
+	border-bottom-right-radius: var(--global-boarder-radius-button);
 }
 
 /* progress containers */

@@ -521,15 +521,16 @@
 						<button onclick={closeRightSidebar} class="close">✕</button>
 						{#if selectedItem === 'dataShards'}
 							<div class="detail">
-								<div class="name">Data Shards</div>
-								<div class="quantity">{PlayerTotal.toFixed(4)}</div>
+								<div class="container">
+									<div class="name">Data Shards</div>
+									<div class="border"></div>
+									<div class="quantity">{PlayerTotal.toFixed(4)}</div>
+								</div>
 								<div class="description">
-									<p>
-										Data Shards are the fundamental currency of the Pocket Universe Division. They
-										represent discrete units of computational resources extracted from various
-										sources. Use them to upgrade your extraction capabilities and enhance your
-										efficiency.
-									</p>
+									Data Shards are the fundamental currency of the Pocket Universe Division. They
+									represent discrete units of computational resources extracted from various
+									sources. Use them to upgrade your extraction capabilities and enhance your
+									efficiency.
 								</div>
 							</div>
 						{/if}
