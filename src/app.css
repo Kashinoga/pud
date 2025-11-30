@@ -204,7 +204,7 @@ button:disabled {
 
 /* Sidebar Header */
 
-.sidebar-header {
+.sidebar .header {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -240,27 +240,27 @@ button:disabled {
         z-index: -1; 
     } */
 
-.sidebar-header-icon {
+.sidebar .header .icon {
 	border-right: 1px dashed var(--border-color);
 	font-size: xx-large;
 	padding: var(--global-padding-small);
 }
 
-.sidebar-header-text {
+.sidebar .header .text {
 	flex-grow: 1;
 	padding: var(--global-padding-small);
 }
 
-.sidebar-header-title {
+.sidebar .header .title {
 	font-size: large;
 }
 
-.sidebar-header-subtitle {
+.sidebar .header .subtitle {
 	font-size: x-small;
 }
 
 /* Sidebar Controls */
-.sidebar-controls {
+.sidebar .controls {
 	display: flex;
 	gap: 0.2rem;
 	padding: 0.5rem;
@@ -323,8 +323,6 @@ button:disabled {
 .sidebar .engine .grid {
 	display: grid;
 	grid-template-columns: 1fr auto;
-	padding-top: 0.5rem;
-	padding-bottom: 0.5rem;
 }
 
 .sidebar .engine .item {
@@ -401,7 +399,6 @@ button:disabled {
 	display: grid;
 	grid-template-columns: 1fr auto;
 	padding-top: 0.5rem;
-	padding-bottom: 0.5rem;
 }
 
 .sidebar .inventory .item {
@@ -478,8 +475,6 @@ button:disabled {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 0.5rem;
-	padding-top: 0.5rem;
-	padding-bottom: 0.5rem;
 }
 
 .sidebar .equipment .item {
@@ -536,8 +531,6 @@ button:disabled {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 0.5rem;
-	padding-top: 0.5rem;
-	padding-bottom: 0.5rem;
 }
 
 .sidebar .upgrades .item {
@@ -565,10 +558,11 @@ button:disabled {
 	font-size: xx-small;
 }
 
-.inventory-controls {
+.inventory .controls {
 	display: flex;
 	justify-content: flex-end;
 	padding: var(--global-padding-small);
+	padding-top: 0;
 	border-bottom: 1px dashed var(--border-color);
 }
 
@@ -720,6 +714,11 @@ button:disabled {
 	gap: 0.5rem;
 }
 
+.main .cabinet .content .flex .inventory .grid {
+	display: flex;
+	gap: 0.5rem;
+}
+
 .main .cabinet .content .flex .section {
 	padding: 0;
 }
@@ -766,12 +765,15 @@ button:disabled {
 }
 
 .main .cabinet {
+	display: flex;
 	position: relative;
 	height: 100%;
 	overflow-x: hidden;
 }
 
 .main .cabinet .content {
+	flex-shrink: 0;
+	width: 100%;
 	transition: margin-right 0.3s ease;
 }
 

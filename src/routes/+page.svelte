@@ -318,16 +318,16 @@
 	<div class="container" class:mobile-sidebar-open={isMobileSidebarOpen}>
 		<div class="sidebar">
 			<div class="container">
-				<div class="sidebar-header">
-					<div class="sidebar-header-icon">🗃️</div>
-					<div class="sidebar-header-text">
-						<div class="sidebar-header-title">Pocket Universe Division: Idle</div>
-						<div class="sidebar-header-subtitle">
+				<div class="header">
+					<div class="icon">🗃️</div>
+					<div class="text">
+						<div class="title">Pocket Universe Division: Idle</div>
+						<div class="subtitle">
 							<i>A big picture game about the small things.</i>
 						</div>
 					</div>
 				</div>
-				<div class="sidebar-controls">
+				<div class="controls">
 					<button onclick={() => (isPaused = !isPaused)} class="button-small">
 						{isPaused ? '▶ Play' : '⏸️ Pause'}
 					</button>
@@ -374,18 +374,21 @@
 						<div class="title">🎒 Inventory</div>
 						<span class="collapse-arrow">{isInventoryCollapsed ? '▶' : '▼'}</span>
 					</button>
+
 					<div class="content" class:collapsed={isInventoryCollapsed}>
-						<div class="inventory-controls">
+						<div class="controls">
 							<button
 								class="button-small"
 								onclick={() => {
 									currentView = currentView === 'inventory' ? 'home' : 'inventory';
 									closeRightSidebar();
+									isDrawerExpanded = false;
 								}}
 							>
 								{currentView === 'inventory' ? 'Close' : 'Open'}
 							</button>
 						</div>
+
 						<div class="grid">
 							<div class="item">
 								<button class="name" onclick={() => (showDataShardsModal = true)}
@@ -485,7 +488,9 @@
 			<div class="header">
 				<div class="content" class:right-sidebar-open={showRightSidebar}>
 					<div class="title">
-						<p class="view-title">{currentView === 'inventory' ? 'Inventory' : 'Dashboard'}</p>
+						<div class="view-title">
+							{currentView === 'inventory' ? '🎒 Inventory' : '🎛️ Dashboard'}
+						</div>
 						<div class="app-name">Pocket Universe Division: Idle</div>
 						<div class="app-subtitle"><i>A big picture game about the small things.</i></div>
 					</div>
@@ -535,6 +540,7 @@
 									onclick={() => {
 										currentView = 'home';
 										closeRightSidebar();
+										isDrawerExpanded = false;
 									}}>Back</button
 								>
 								<div class="grid">
@@ -611,6 +617,7 @@
 							}
 						}}
 					></div>
+
 					<div class="sidebar" class:open={showRightSidebar}>
 						<button onclick={closeRightSidebar} class="close">✕</button>
 						{#if selectedItem === 'dataShards'}
@@ -632,18 +639,19 @@
 				</div>
 
 				<div class="drawer" class:visible={isDrawerExpanded}>
-					<div>
-						<div class="detail">
-							<div class="container">
-								<div class="name">Data Shards</div>
-								<div class="border"></div>
-								<div class="quantity">{PlayerTotal.toFixed(4)}</div>
-							</div>
-							<div class="description">
-								Data Shards are the fundamental currency of the Pocket Universe Division. They
-								represent discrete units of computational resources extracted from various sources.
-								Use them to upgrade your extraction capabilities and enhance your efficiency.
-							</div>
+					<button onclick={() => (isDrawerExpanded = false)} class="close">✕</button>
+
+					<div class="detail">
+						<div class="container">
+							<div class="name">Data Shards</div>
+							<div class="border"></div>
+							<div class="quantity">{PlayerTotal.toFixed(4)}</div>
+						</div>
+
+						<div class="description">
+							Data Shards are the fundamental currency of the Pocket Universe Division. They
+							represent discrete units of computational resources extracted from various sources.
+							Use them to upgrade your extraction capabilities and enhance your efficiency.
 						</div>
 					</div>
 				</div>
