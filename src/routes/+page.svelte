@@ -136,12 +136,15 @@
 	// Idle loop
 	let LastFrameTimestamp = performance.now();
 	$effect(() => {
-		if (isPaused) return; // Skip if paused
-
 		let AnimationFrameId: number;
 		const AnimationStep = (CurrentTimestamp: number) => {
 			const DeltaTimeSeconds = (CurrentTimestamp - LastFrameTimestamp) / 1000;
 			LastFrameTimestamp = CurrentTimestamp;
+
+			if (isPaused) {
+				AnimationFrameId = requestAnimationFrame(AnimationStep);
+				return;
+			}
 
 			// Update boost timer
 			if (BoostTimeRemaining > 0) {
@@ -274,9 +277,6 @@
 	// Modal state
 	let showDataShardsModal = $state(false);
 
-	// Add state for accordion toggle
-	let isDataShardsOpen = $state(false);
-
 	// main view
 	let currentView = $state('home'); // 'home' or 'inventory'
 
@@ -391,11 +391,11 @@
 
 						<div class="grid">
 							<div class="item">
-								<button class="name" onclick={() => (showDataShardsModal = true)}
+								<button class="name" onclick={() => (isDrawerExpanded = !isDrawerExpanded)}
 									>Data Shards</button
 								>
 								<div class="border"></div>
-								<button class="value">
+								<button class="value" onclick={() => (isDrawerExpanded = !isDrawerExpanded)}>
 									{PlayerTotal.toFixed(4)}
 								</button>
 							</div>
@@ -496,112 +496,94 @@
 					</div>
 				</div>
 			</div>
-			<div class="cabinet" class:drawer-expanded={isDrawerExpanded}>
+			<div
+				class="cabinet"
+				class:drawer-expanded={isDrawerExpanded}
+				onclick={(e) => {
+					if (!(e.target as HTMLElement)?.closest('.drawer')) isDrawerExpanded = false;
+				}}
+				role={isDrawerExpanded ? 'button' : undefined}
+			>
 				<div class="content" class:right-sidebar-open={showRightSidebar}>
 					<div class="flex">
-						{#if currentView === 'home'}
-							<div class="wrapper">
-								<div class="header">
-									<div class="title">📔 Log</div>
-								</div>
-								<div class="content">
-									<p>Welcome to Pocket Universe Division: Idle!</p>
-									<p>
-										Click the large button below to extract Data Shards manually. You can also
-										upgrade your extraction capabilities in the sidebar.
-									</p>
-									<p>
-										Use Data Shards to purchase upgrades that enhance your extraction rate and
-										efficiency. Activate boosts to temporarily increase your extraction speed.
-									</p>
-									<p>Happy extracting!</p>
-								</div>
+						<div class="wrapper">
+							<div class="header">
+								<div class="title">📔 Log</div>
 							</div>
-							<div class="wrapper">
-								<div class="header">
-									<div class="title">📰 Recent Actions</div>
-								</div>
-								<div class="content">
-									<p>Here are your most recent actions:</p>
-									{#if ActionHistory.length === 0}
-										<p>No recent actions.</p>
-									{:else}
-										<ul>
-											{#each ActionHistory as action}
-												<li>{action}</li>
-											{/each}
-										</ul>
-									{/if}
-								</div>
+							<div class="content">
+								<p>Welcome to Pocket Universe Division: Idle!</p>
+								<p>
+									Click the large button below to extract Data Shards manually. You can also upgrade
+									your extraction capabilities in the sidebar.
+								</p>
+								<p>
+									Use Data Shards to purchase upgrades that enhance your extraction rate and
+									efficiency. Activate boosts to temporarily increase your extraction speed.
+								</p>
+								<p>Happy extracting!</p>
 							</div>
-						{:else if currentView === 'inventory'}
-							<div class="inventory">
-								<button
-									onclick={() => {
-										currentView = 'home';
-										closeRightSidebar();
-										isDrawerExpanded = false;
-									}}>Back</button
-								>
-								<div class="grid">
-									<div class="item">
-										<button
-											class="toggle"
-											class:selected={selectedItem === 'dataShards'}
-											onclick={() => {
-												if (selectedItem === 'dataShards') {
-													closeRightSidebar();
-												} else {
-													openItemDetails('dataShards');
-												}
-											}}
-										>
-											<div class="detail">
-												<div class="name">Data Shards</div>
-												<div class="border"></div>
-												<div class="quantity">
-													{PlayerTotal.toFixed(4)}
-												</div>
+						</div>
+						<div class="wrapper">
+							<div class="header">
+								<div class="title">📰 Recent Actions</div>
+							</div>
+							<div class="content">
+								<p>Here are your most recent actions:</p>
+								{#if ActionHistory.length === 0}
+									<p>No recent actions.</p>
+								{:else}
+									<ul>
+										{#each ActionHistory as action}
+											<li>{action}</li>
+										{/each}
+									</ul>
+								{/if}
+							</div>
+						</div>
+						<div class="inventory" class:visible={currentView === 'inventory'}>
+							<button
+								onclick={() => {
+									currentView = 'home';
+									closeRightSidebar();
+									isDrawerExpanded = false;
+								}}>Back</button
+							>
+							<div class="grid">
+								<div class="item">
+									<button
+										onclick={(e) => {
+											e.stopPropagation();
+											isDrawerExpanded = !isDrawerExpanded;
+										}}
+									>
+										<div class="detail">
+											<div class="name">Data Shards</div>
+											<div class="border"></div>
+											<div class="quantity">
+												{PlayerTotal.toFixed(4)}
 											</div>
-										</button>
-										{#if isDataShardsOpen}
-											<div class="content">
-												<h3>Recent Actions</h3>
-												<ul>
-													{#each ActionHistory as action}
-														<li>{action}</li>
-													{/each}
-												</ul>
-											</div>
-										{/if}
-									</div>
+										</div>
+									</button>
+								</div>
 
-									<div class="item">
-										<button onclick={() => (isDrawerExpanded = !isDrawerExpanded)}>
-											<div class="detail">
-												<div class="name">Data Shards (Cabinet Drawer)</div>
-												<div class="border"></div>
-												<div class="quantity">
-													{PlayerTotal.toFixed(4)}
-												</div>
+								<div class="item">
+									<button
+										onclick={(e) => {
+											e.stopPropagation();
+											isDrawerExpanded = !isDrawerExpanded;
+										}}
+									>
+										<div class="detail">
+											<div class="name">Data Shards 2 (Cabinet Drawer)</div>
+											<div class="border"></div>
+											<div class="quantity">
+												{PlayerTotal.toFixed(4)}
 											</div>
-										</button>
-									</div>
-
-									<div class="item">
-										<button onclick={() => (isDrawerExpanded = !isDrawerExpanded)}>
-											<div class="detail">
-												<div class="name">Data Shards 2 (Cabinet Drawer)</div>
-												<div class="border"></div>
-												<div class="quantity">
-													{PlayerTotal.toFixed(4)}
-												</div>
-											</div>
-										</button>
-									</div>
+										</div>
+									</button>
 								</div>
 							</div>
-						{/if}
+						</div>
 					</div>
 
 					<div
@@ -639,7 +621,9 @@
 				</div>
 
 				<div class="drawer" class:visible={isDrawerExpanded}>
-					<button onclick={() => (isDrawerExpanded = false)} class="close">✕</button>
+					<div class="toolbar">
+						<button onclick={() => (isDrawerExpanded = false)} class="close">✕</button>
+					</div>
 
 					<div class="detail">
 						<div class="container">
@@ -665,9 +649,8 @@
 					☰
 				</button>
 				<div class="content">Footer.</div>
-				<div class="expanded-content" class:visible={isFooterExpanded}>
-					<p>Quick Actions</p>
-					<div class="quick-actions">
+				<div class="drawer" class:visible={isFooterExpanded}>
+					<div class="divider">
 						<button onclick={BuyTickBoost} disabled={!CanBuyBoost}>Boost ({BoostCost})</button>
 						<button onclick={BuyClickUpgrade} disabled={!CanBuyClickUpgrade}
 							>Click Upgrade ({NextClickUpgradeCost})</button
