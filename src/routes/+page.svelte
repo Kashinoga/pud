@@ -325,10 +325,10 @@
 			<div class="sidebar-container">
 				<!-- Sidebar: Header -->
 				<div class="sidebar-header">
-					<div class="icon">🗃️</div>
-					<div class="text">
-						<div class="title">Pocket Universe Division: Idle</div>
-						<div class="subtitle">
+					<div class="sidebar-header-icon">🗃️</div>
+					<div class="sidebar-header-text">
+						<div class="sidebar-header-title">Pocket Universe Division: Idle</div>
+						<div class="sidebar-header-subtitle">
 							<i>A big picture game about the small things.</i>
 						</div>
 					</div>
@@ -476,8 +476,11 @@
 
 				<!-- Sidebar: Engine -->
 				<div class="sidebar-engine">
-					<button class="header" onclick={() => (isEngineCollapsed = !isEngineCollapsed)}>
-						<div class="title">⚙️ Engine</div>
+					<button
+						class="sidebar-engine-header"
+						onclick={() => (isEngineCollapsed = !isEngineCollapsed)}
+					>
+						<div class="sidebar-engine-title">⚙️ Engine</div>
 
 						<span class="collapse-arrow">
 							{#if isEngineCollapsed}
@@ -514,19 +517,19 @@
 						</span>
 					</button>
 
-					<div class="content" class:collapsed={isEngineCollapsed}>
-						<div class="grid">
-							<div class="item">
-								<button class="name">Auto Extraction</button>
-								<div class="border"></div>
-								<button class="value progress-container">
+					<div class="sidebar-engine-content" class:collapsed={isEngineCollapsed}>
+						<div class="sidebar-engine-grid">
+							<div class="sidebar-engine-item">
+								<button class="sidebar-engine-item-name">Auto Extraction</button>
+								<div class="sidebar-engine-item-border"></div>
+								<button class="sidebar-engine-item-value progress-container">
 									<div
 										class="progress-bar"
 										style="width: {(
 											Math.min(1, TickElapsedSeconds / TickIntervalSeconds) * 100
 										).toFixed(2)}%"
 									></div>
-									<div class="border"></div>
+									<div class="sidebar-engine-item-border"></div>
 									<span class="progress-content">
 										{Math.max(0, TickIntervalSeconds - TickElapsedSeconds).toFixed(4)}s
 									</span>
@@ -538,8 +541,11 @@
 
 				<!-- Sidebar: Inventory -->
 				<div class="sidebar-inventory">
-					<button class="header" onclick={() => (isInventoryCollapsed = !isInventoryCollapsed)}>
-						<div class="title">🎒 Inventory</div>
+					<button
+						class="sidebar-inventory-header"
+						onclick={() => (isInventoryCollapsed = !isInventoryCollapsed)}
+					>
+						<div class="sidebar-inventory-title">🎒 Inventory</div>
 						<span class="collapse-arrow">
 							{#if isInventoryCollapsed}
 								<svg
@@ -575,8 +581,8 @@
 						</span>
 					</button>
 
-					<div class="content" class:collapsed={isInventoryCollapsed}>
-						<div class="controls">
+					<div class="sidebar-inventory-content" class:collapsed={isInventoryCollapsed}>
+						<div class="sidebar-inventory-controls">
 							<button
 								class="button-small"
 								onclick={() => {
@@ -589,13 +595,17 @@
 							</button>
 						</div>
 
-						<div class="grid">
-							<div class="item">
-								<button class="name" onclick={() => (isDrawerExpanded = !isDrawerExpanded)}
-									>Data Shards</button
+						<div class="sidebar-inventory-grid">
+							<div class="sidebar-inventory-item">
+								<button
+									class="sidebar-inventory-item-name"
+									onclick={() => (isDrawerExpanded = !isDrawerExpanded)}>Data Shards</button
 								>
-								<div class="border"></div>
-								<button class="value" onclick={() => (isDrawerExpanded = !isDrawerExpanded)}>
+								<div class="sidebar-inventory-item-border"></div>
+								<button
+									class="sidebar-inventory-item-value"
+									onclick={() => (isDrawerExpanded = !isDrawerExpanded)}
+								>
 									{PlayerTotal.toFixed(4)}
 								</button>
 							</div>
@@ -605,8 +615,11 @@
 
 				<!-- Sidebar: Equipment -->
 				<div class="sidebar-equipment">
-					<button class="header" onclick={() => (isEquipmentCollapsed = !isEquipmentCollapsed)}>
-						<div class="title">🛠️ Equipment</div>
+					<button
+						class="sidebar-equipment-header"
+						onclick={() => (isEquipmentCollapsed = !isEquipmentCollapsed)}
+					>
+						<div class="sidebar-equipment-title">🛠️ Equipment</div>
 						<span class="collapse-arrow">
 							{#if isEquipmentCollapsed}
 								<svg
@@ -642,15 +655,15 @@
 						</span>
 					</button>
 
-					<div class="content" class:collapsed={isEquipmentCollapsed}>
-						<div class="grid">
-							<button class="item progress-container" onclick={HandleClick}>
+					<div class="sidebar-equipment-content" class:collapsed={isEquipmentCollapsed}>
+						<div class="sidebar-equipment-grid">
+							<button class="sidebar-equipment-item progress-container" onclick={HandleClick}>
 								<div class="progress-bar" style="width: {(ManualProgress * 100).toFixed(2)}%"></div>
 								<span class="progress-content">
 									Clicker (+{PerClickAmount})
 								</span>
 							</button>
-							<button class="item progress-container" disabled>
+							<button class="sidebar-equipment-item progress-container" disabled>
 								<div
 									class="progress-bar"
 									style="width: {(
@@ -667,8 +680,11 @@
 
 				<!-- Sidebar: Upgrades -->
 				<div class="sidebar-upgrades">
-					<button class="header" onclick={() => (isUpgradesCollapsed = !isUpgradesCollapsed)}>
-						<div class="title">⚙️ Upgrades</div>
+					<button
+						class="sidebar-upgrades-header"
+						onclick={() => (isUpgradesCollapsed = !isUpgradesCollapsed)}
+					>
+						<div class="sidebar-upgrades-title">⚙️ Upgrades</div>
 						<span class="collapse-arrow">
 							{#if isUpgradesCollapsed}
 								<svg
@@ -704,10 +720,11 @@
 						</span>
 					</button>
 
-					<div class="content" class:collapsed={isUpgradesCollapsed}>
-						<div class="grid">
+					<div class="sidebar-upgrades-content" class:collapsed={isUpgradesCollapsed}>
+						<div class="sidebar-upgrades-grid">
 							<button
-								class="item progress-container {!CanBuyClickUpgrade || ClickUpgradeProgress > 0
+								class="sidebar-upgrades-item progress-container {!CanBuyClickUpgrade ||
+								ClickUpgradeProgress > 0
 									? 'disabled'
 									: ''}"
 								onclick={BuyClickUpgrade}
@@ -721,7 +738,8 @@
 								</span>
 							</button>
 							<button
-								class="item progress-container {!CanBuyCPSUpgrade || CPSUpgradeProgress > 0
+								class="sidebar-upgrades-item progress-container {!CanBuyCPSUpgrade ||
+								CPSUpgradeProgress > 0
 									? 'disabled'
 									: ''}"
 								onclick={BuyCPSUpgrade}
@@ -737,52 +755,17 @@
 						</div>
 					</div>
 				</div>
-
-				<!-- Mobile Sidebar Close Button -->
-				<button
-					class="close-mobile"
-					onclick={() => (isMobileSidebarOpen = false)}
-					aria-label="Close"
-					><svg
-						width="1em"
-						height="1em"
-						viewBox="0 0 24 24"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-						color="currentColor"
-						stroke-width="1"
-						><path
-							fill-rule="evenodd"
-							clip-rule="evenodd"
-							d="M12 1.25C6.06294 1.25 1.25 6.06294 1.25 12C1.25 17.9371 6.06294 22.75 12 22.75C17.9371 22.75 22.75 17.9371 22.75 12C22.75 6.06294 17.9371 1.25 12 1.25ZM9.70164 8.64124C9.40875 8.34835 8.93388 8.34835 8.64098 8.64124C8.34809 8.93414 8.34809 9.40901 8.64098 9.7019L10.9391 12L8.64098 14.2981C8.34809 14.591 8.34809 15.0659 8.64098 15.3588C8.93388 15.6517 9.40875 15.6517 9.70164 15.3588L11.9997 13.0607L14.2978 15.3588C14.5907 15.6517 15.0656 15.6517 15.3585 15.3588C15.6514 15.0659 15.6514 14.591 15.3585 14.2981L13.0604 12L15.3585 9.7019C15.6514 9.40901 15.6514 8.93414 15.3585 8.64124C15.0656 8.34835 14.5907 8.34835 14.2978 8.64124L11.9997 10.9393L9.70164 8.64124Z"
-							fill="currentColor"
-						></path></svg
-					></button
-				>
 			</div>
 		</div>
 
-		{#if isMobileSidebarOpen}
-			<div
-				class="overlay"
-				onclick={() => (isMobileSidebarOpen = false)}
-				role="button"
-				tabindex="0"
-				onkeydown={(e) => {
-					if (e.key === 'Enter' || e.key === ' ') {
-						isMobileSidebarOpen = false;
-						e.preventDefault();
-					}
-				}}
-			></div>
-		{/if}
-
 		<!-- Main Content Area -->
 		<div class="main-content-area" class:mobile-sidebar-open={isMobileSidebarOpen}>
-			<div class="header" class:right-sidebar-open={showRightSidebar}>
-				<div class="title">
-					<div class="emoji">{currentView === 'inventory' ? '🎒' : isMobile ? '🗃️' : '🎛️'}</div>
-					<div class="name">
+			<div class="main-content-area-header" class:right-sidebar-open={showRightSidebar}>
+				<div class="main-content-area-header-title">
+					<div class="main-content-area-header-emoji">
+						{currentView === 'inventory' ? '🎒' : isMobile ? '🗃️' : '🎛️'}
+					</div>
+					<div class="main-content-area-header-name">
 						{currentView === 'inventory'
 							? 'Inventory'
 							: isMobile
@@ -846,7 +829,7 @@
 					</div>
 
 					<!-- Cabinet: Inventory -->
-					<div class="inventory" class:visible={currentView === 'inventory'}>
+					<div class="cabinet-inventory" class:visible={currentView === 'inventory'}>
 						<button
 							onclick={() => {
 								currentView = 'home';
@@ -854,35 +837,35 @@
 								isDrawerExpanded = false;
 							}}>Back</button
 						>
-						<div class="grid">
-							<div class="item">
+						<div class="cabinet-inventory-grid">
+							<div class="cabinet-inventory-item">
 								<button
 									onclick={(e) => {
 										e.stopPropagation();
 										isDrawerExpanded = !isDrawerExpanded;
 									}}
 								>
-									<div class="detail">
-										<div class="name">Data Shards</div>
-										<div class="border"></div>
-										<div class="quantity">
+									<div class="cabinet-inventory-detail">
+										<div class="cabinet-inventory-detail-name">Data Shards</div>
+										<div class="cabinet-inventory-detail-border"></div>
+										<div class="cabinet-inventory-detail-quantity">
 											{PlayerTotal.toFixed(4)}
 										</div>
 									</div>
 								</button>
 							</div>
 
-							<div class="item">
+							<div class="cabinet-inventory-item">
 								<button
 									onclick={(e) => {
 										e.stopPropagation();
 										isDrawerExpanded = !isDrawerExpanded;
 									}}
 								>
-									<div class="detail">
-										<div class="name">Data Shards 2 (Cabinet Drawer)</div>
-										<div class="border"></div>
-										<div class="quantity">
+									<div class="cabinet-inventory-detail">
+										<div class="cabinet-inventory-detail-name">Data Shards 2 (Cabinet Drawer)</div>
+										<div class="cabinet-inventory-detail-border"></div>
+										<div class="cabinet-inventory-detail-quantity">
 											{PlayerTotal.toFixed(4)}
 										</div>
 									</div>
@@ -890,60 +873,11 @@
 							</div>
 						</div>
 					</div>
-
-					<!-- <div
-						class="overlay"
-						class:open={showRightSidebar}
-						onclick={closeRightSidebar}
-						role="button"
-						tabindex="0"
-						onkeydown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
-								closeRightSidebar();
-								e.preventDefault();
-							}
-						}}
-					></div> -->
-
-					<!-- <div class="sidebar" class:open={showRightSidebar}>
-						<button onclick={closeRightSidebar} class="close" aria-label="Close"
-							><svg
-								width="1em"
-								height="1em"
-								stroke-width="1"
-								viewBox="0 0 24 24"
-								fill="none"
-								xmlns="http://www.w3.org/2000/svg"
-								><path
-									d="M6.75827 17.2426L12.0009 12M17.2435 6.75736L12.0009 12M12.0009 12L6.75827 6.75736M12.0009 12L17.2435 17.2426"
-									stroke="currentColor"
-									stroke-width="1"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								></path></svg
-							></button
-						>
-						{#if selectedItem === 'dataShards'}
-							<div class="detail">
-								<div class="container">
-									<div class="name">Data Shards</div>
-									<div class="border"></div>
-									<div class="quantity">{PlayerTotal.toFixed(4)}</div>
-								</div>
-								<div class="description">
-									Data Shards are the fundamental currency of the Pocket Universe Division. They
-									represent discrete units of computational resources extracted from various
-									sources. Use them to upgrade your extraction capabilities and enhance your
-									efficiency.
-								</div>
-							</div>
-						{/if}
-					</div> -->
 				</div>
 
 				<!-- Cabinet: Drawer -->
-				<div class="drawer" class:visible={isDrawerExpanded}>
-					<div class="toolbar">
+				<div class="cabinet-drawer" class:visible={isDrawerExpanded}>
+					<div class="cabinet-drawer-toolbar">
 						<button onclick={() => (isDrawerExpanded = false)} class="close" aria-label="Close"
 							><svg
 								width="1em"
@@ -963,14 +897,14 @@
 						>
 					</div>
 
-					<div class="detail">
-						<div class="container">
-							<div class="name">Data Shards</div>
-							<div class="border"></div>
-							<div class="quantity">{PlayerTotal.toFixed(4)}</div>
+					<div class="cabinet-drawer-detail">
+						<div class="cabinet-drawer-detail-container">
+							<div class="cabinet-drawer-detail-container-name">Data Shards</div>
+							<div class="cabinet-drawer-detail-container-border"></div>
+							<div class="cabinet-drawer-detail-container-quantity">{PlayerTotal.toFixed(4)}</div>
 						</div>
 
-						<div class="description">
+						<div class="cabinet-drawer-detail-description">
 							Data Shards are the fundamental currency of the Pocket Universe Division. They
 							represent discrete units of computational resources extracted from various sources.
 							Use them to upgrade your extraction capabilities and enhance your efficiency.
@@ -979,8 +913,12 @@
 				</div>
 			</div>
 
-			<div class="footer">
-				<button class="toolbar" onclick={() => (isFooterExpanded = !isFooterExpanded)}>
+			<div class="main-content-area-footer">
+				<button
+					class="main-content-area-footer-toolbar"
+					onclick={() => (isFooterExpanded = !isFooterExpanded)}
+					aria-label="Toggle footer expansion"
+				>
 					<svg
 						width="1em"
 						height="1em"
@@ -1009,9 +947,9 @@
 						></path></svg
 					>
 				</button>
-				<div class="content">Footer.</div>
-				<div class="drawer" class:visible={isFooterExpanded}>
-					<div class="divider">
+				<div class="main-content-area-footer-content">Footer.</div>
+				<div class="main-content-area-footer-drawer" class:visible={isFooterExpanded}>
+					<div class="main-content-area-footer-drawer-divider">
 						<button onclick={BuyTickBoost} disabled={!CanBuyBoost}>Boost ({BoostCost})</button>
 						<button onclick={BuyClickUpgrade} disabled={!CanBuyClickUpgrade}
 							>Click Upgrade ({NextClickUpgradeCost})</button
