@@ -2,9 +2,10 @@
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 
+	// Saved data from localStorage
 	const savedData = browser ? JSON.parse(localStorage.getItem('save') || '{}') : {};
 
-	// Local state with loaded values
+	// Initial game state
 	let PlayerTotal = $state(savedData.PlayerTotal ?? savedData.total ?? 0);
 	let PerClickAmount = $state(savedData.PerClickAmount ?? savedData.perClick ?? 1);
 	let CoinsPerSecond = $state(savedData.CoinsPerSecond ?? savedData.cps ?? 0);
@@ -19,6 +20,39 @@
 	let CPSUpgradeProgress = $state(savedData.CPSUpgradeProgress ?? 0);
 	let PendingCPSIncrement = $state(savedData.PendingCPSIncrement ?? 0);
 	let isPaused = $state(savedData.isPaused ?? false); // Add pause state
+
+	// Collapsible state for sidebar sections
+	let isEngineCollapsed = $state(false);
+	let isInventoryCollapsed = $state(false);
+	let isEquipmentCollapsed = $state(false);
+	let isUpgradesCollapsed = $state(false);
+
+	// Derived state for all collapsed
+	let allCollapsed = $derived(
+		isEngineCollapsed && isInventoryCollapsed && isEquipmentCollapsed && isUpgradesCollapsed
+	);
+
+	// main view
+	let currentView = $state('home'); // 'home' or 'inventory'
+
+	// Add state for right sidebar
+	let showRightSidebar = $state(false);
+	let selectedItem = $state<string | null>(null);
+
+	// Footer expansion state
+	let isFooterExpanded = $state(false);
+
+	// Drawer expansion state
+	let isDrawerExpanded = $state(false);
+
+	// Mobile detection
+	let isMobile = $state(false);
+
+	// Clicker upgrade cost and purchase ability
+	let NextClickUpgradeCost = $derived(Math.floor(10 * Math.pow(1.15, PerClickAmount)));
+	let CanBuyClickUpgrade = $derived(
+		PlayerTotal >= NextClickUpgradeCost && ClickUpgradeProgress === 0
+	);
 
 	// Action history
 	const MaxHistoryItems = 10;
@@ -38,12 +72,11 @@
 	const BoostDurationSeconds = 10;
 	const BoostSpeedMultiplier = 2; // 2x speed
 
+	let CanBuyBoost = $derived(PlayerTotal >= BoostCost && BoostTimeRemaining <= 0);
+
 	// Upgrade progress states
 	const ClickUpgradeTime = 1; // seconds to complete click upgrade
 	const CPSUpgradeTime = 2; // seconds to complete CPS upgrade
-
-	// Derive values
-	let NextClickUpgradeCost = $derived(Math.floor(10 * Math.pow(1.15, PerClickAmount)));
 
 	// CPS upgrade follows a curved growth: soft-exponential * polynomial term for smoothing
 	const CPSUpgradeCost = () => {
@@ -60,19 +93,16 @@
 		return Math.max(1, Math.floor(Base * SoftExp * Poly));
 	};
 
+	let CanBuyCPSUpgrade = $derived(PlayerTotal >= CPSUpgradeCost() && CPSUpgradeProgress === 0);
+
 	// base CPS increment and curve for how much CPS each purchase grants
 	const BaseCPSIncrement = 0.1;
+
 	function CPSIncrementForLevel(Level: number) {
 		// moderate growth per upgrade: gentle early, stronger later
 		// tweak 1.07 to make growth faster/slower
 		return BaseCPSIncrement * Math.pow(1.07, Level);
 	}
-
-	let CanBuyClickUpgrade = $derived(
-		PlayerTotal >= NextClickUpgradeCost && ClickUpgradeProgress === 0
-	);
-	let CanBuyCPSUpgrade = $derived(PlayerTotal >= CPSUpgradeCost() && CPSUpgradeProgress === 0);
-	let CanBuyBoost = $derived(PlayerTotal >= BoostCost && BoostTimeRemaining <= 0);
 
 	function ToggleTheme() {
 		isDarkMode = !isDarkMode;
@@ -255,17 +285,6 @@
 		}
 	});
 
-	// Collapsible state for sidebar sections
-	let isEngineCollapsed = $state(false);
-	let isInventoryCollapsed = $state(false);
-	let isEquipmentCollapsed = $state(false);
-	let isUpgradesCollapsed = $state(false);
-
-	// Derived state for all collapsed
-	let allCollapsed = $derived(
-		isEngineCollapsed && isInventoryCollapsed && isEquipmentCollapsed && isUpgradesCollapsed
-	);
-
 	function toggleAllSections() {
 		const newState = !allCollapsed;
 		isEngineCollapsed = newState;
@@ -274,44 +293,14 @@
 		isUpgradesCollapsed = newState;
 	}
 
-	// Modal state
-	let showDataShardsModal = $state(false);
-
-	// main view
-	let currentView = $state('home'); // 'home' or 'inventory'
-
-	// Add state for right sidebar
-	let showRightSidebar = $state(false);
-	let selectedItem = $state<string | null>(null);
-
-	function openItemDetails(item: string) {
-		selectedItem = item;
-		showRightSidebar = true;
-	}
-
 	function closeRightSidebar() {
 		showRightSidebar = false;
 		selectedItem = null;
 	}
 
-	// Mobile sidebar state
-	let isMobileSidebarOpen = $state(false);
-
-	// Footer expansion state
-	let isFooterExpanded = $state(false);
-
-	// Drawer expansion state
-	let isDrawerExpanded = $state(false);
-
-	// Mobile detection
-	let isMobile = $state(false);
-
 	onMount(() => {
 		const handleResize = () => {
 			isMobile = window.innerWidth <= 768;
-			if (window.innerWidth > 768) {
-				isMobileSidebarOpen = false;
-			}
 		};
 		handleResize();
 		window.addEventListener('resize', handleResize);
@@ -320,7 +309,7 @@
 </script>
 
 <div class="app-shell">
-	<div class="layout-container" class:mobile-sidebar-open={isMobileSidebarOpen}>
+	<div class="layout-container">
 		<div class="main-sidebar">
 			<div class="sidebar-container">
 				<!-- Sidebar: Header -->
@@ -759,7 +748,7 @@
 		</div>
 
 		<!-- Main Content Area -->
-		<div class="main-content-area" class:mobile-sidebar-open={isMobileSidebarOpen}>
+		<div class="main-content-area">
 			<div class="main-content-area-header" class:right-sidebar-open={showRightSidebar}>
 				<div class="main-content-area-header-title">
 					<div class="main-content-area-header-emoji">
