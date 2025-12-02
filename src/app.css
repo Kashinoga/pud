@@ -558,7 +558,7 @@ button:disabled {
 	overflow: hidden;
 }
 
-.cabinet-file .header {
+.cabinet-file-header {
 	background-color: var(--background-color-4);
 	border-bottom: 1px dashed var(--border-color-1);
 	border-radius: var(--border-radius-small);
@@ -568,15 +568,10 @@ button:disabled {
 	padding: var(--padding-small);
 }
 
-.cabinet-file .content {
+.cabinet-file-content {
 	padding: var(--padding-small);
 	padding-bottom: 0;
 	padding-top: 0;
-}
-
-.main .header .toolbar {
-	display: flex;
-	justify-content: flex-end;
 }
 
 .cabinet-inventory {

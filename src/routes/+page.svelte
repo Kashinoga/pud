@@ -778,7 +778,6 @@
 			<!-- Cabinet -->
 			<div
 				class="cabinet"
-				class:drawer-expanded={isDrawerExpanded}
 				onclick={(e) => {
 					if (!(e.target as HTMLElement)?.closest('.drawer')) isDrawerExpanded = false;
 				}}
@@ -793,10 +792,10 @@
 					{/if}
 
 					<div class="cabinet-file">
-						<div class="header">
-							<div class="title">📔 Log</div>
+						<div class="cabinet-file-header">
+							<div class="cabinet-file-title">📔 Log</div>
 						</div>
-						<div class="content">
+						<div class="cabinet-file-content">
 							<p>Welcome to Pocket Universe Division: Idle!</p>
 							<p>
 								Click the large button below to extract Data Shards manually. You can also upgrade
@@ -811,10 +810,10 @@
 					</div>
 
 					<div class="cabinet-file">
-						<div class="header">
-							<div class="title">📰 Recent Actions</div>
+						<div class="cabinet-file-header">
+							<div class="cabinet-file-title">📰 Recent Actions</div>
 						</div>
-						<div class="content">
+						<div class="cabinet-file-content">
 							<p>Here are your most recent actions:</p>
 							{#if ActionHistory.length === 0}
 								<p>No recent actions.</p>
