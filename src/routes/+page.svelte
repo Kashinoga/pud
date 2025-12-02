@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import ContactEmail from '$lib/components/ContactEmail.svelte';
 
 	// ============================================================================
 	// Constants and Configuration
@@ -886,6 +887,8 @@
 							<div class="name">Dashboard</div>
 						</div>
 					{/if}
+
+					<ContactEmail />
 
 					<div class="cabinet-file">
 						<div class="cabinet-file-header">
