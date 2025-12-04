@@ -146,6 +146,13 @@ body {
 	top: 0;
 }
 
+button.side-bar-header {
+	border: 0;
+	height: calc(var(--topbar-height) + var(--padding) + var(--padding));
+	padding: var(--padding);
+	width: 100%;
+}
+
 .side-bar-header-title {
 	font-size: small;
 }
@@ -196,8 +203,13 @@ body {
 }
 
 .main-content {
+	/* height: 100%; */
 	padding: var(--padding);
 	transition: var(--transition-property) var(--transition-duration) var(--transition-type);
+}
+
+.main-content-mobile {
+	height: 100%;
 }
 
 .main-content.detail-view,

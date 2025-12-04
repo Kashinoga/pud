@@ -27,9 +27,14 @@
 		class:side-bar-desktop={!isMobile}
 	>
 		{#if isMobile}
-			<div class="side-bar-header" on:click={() => (isSidebarCollapsed = !isSidebarCollapsed)}>
+			<button
+				class="side-bar-header"
+				type="button"
+				aria-expanded={!isSidebarCollapsed}
+				on:click={() => (isSidebarCollapsed = !isSidebarCollapsed)}
+			>
 				<div class="side-bar-header-title">Intergalactic Park Ranger</div>
-			</div>
+			</button>
 		{:else}
 			<div class="side-bar-header">
 				<div class="side-bar-header-title">Intergalactic Park Ranger</div>
@@ -106,11 +111,7 @@
 		</div>
 
 		<div class="main-container" class:side-bar-mobile={isMobile}>
-			<div
-				class="main-content"
-				class:detail-view={currentView === 'detail'}
-				class:mail-view={currentView === 'mail'}
-			>
+			<div class="main-content" class:main-content-mobile={isMobile}>
 				{#if currentView === 'detail'}
 					<div transition:fade={{ duration: 200 }}>
 						<button on:click={() => (isDetailPanelVisible = !isDetailPanelVisible)}>
