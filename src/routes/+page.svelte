@@ -6,6 +6,10 @@
 	let isSidebarCollapsed = false;
 	let isMobile: boolean;
 
+	function toggleDarkMode() {
+		document.documentElement.classList.toggle('dark-mode');
+	}
+
 	onMount(() => {
 		const updateWidth = () => (isMobile = window.innerWidth <= 768);
 		updateWidth();
@@ -28,7 +32,6 @@
 			<div class="side-bar-buttons">
 				<button on:click={() => (currentView = 'detail')}> Detail View </button>
 				<button on:click={() => (currentView = 'mail')}> Mail View </button>
-				<button on:click={() => (isSidebarCollapsed = !isSidebarCollapsed)}>Sidebar</button>
 			</div>
 			<p>
 				Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
@@ -89,6 +92,7 @@
 		>
 			<div class="top-bar-title">Galactic Management Console</div>
 			<div class="top-bar-buttons">
+				<button on:click={toggleDarkMode}>Theme</button>
 				<button on:click={() => (isSidebarCollapsed = !isSidebarCollapsed)}>Sidebar</button>
 			</div>
 		</div>
@@ -152,9 +156,64 @@
 					<p>This is the mail view.</p>
 				{/if}
 			</div>
-			<div class="detail-panel" class:detail-panel-visible={isDetailPanelVisible}>
+
+			<div
+				class="detail-panel"
+				class:detail-panel-visible={isDetailPanelVisible}
+				class:detail-panel-mobile={isMobile}
+			>
 				<button on:click={() => (isDetailPanelVisible = false)}>Close</button>
 				<div>Detail Panel</div>
+				<div>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+						incididunt ut labore et dolore magna aliqua.
+					</p>
+					<p>
+						Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+						commodo consequat.
+					</p>
+					<p>
+						Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+						nulla pariatur.
+					</p>
+					<p>
+						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+						mollit anim id est laborum.
+					</p>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+						incididunt ut labore et dolore magna aliqua.
+					</p>
+					<p>
+						Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+						commodo consequat.
+					</p>
+					<p>
+						Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+						nulla pariatur.
+					</p>
+					<p>
+						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+						mollit anim id est laborum.
+					</p>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
+						incididunt ut labore et dolore magna aliqua.
+					</p>
+					<p>
+						Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+						commodo consequat.
+					</p>
+					<p>
+						Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+						nulla pariatur.
+					</p>
+					<p>
+						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+						mollit anim id est laborum.
+					</p>
+				</div>
 			</div>
 		</div>
 	</div>
